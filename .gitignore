@@ -1,0 +1,32 @@
+# OpenClaw system files - DO NOT COMMIT
+*.md
+!curriculum/**/*.md
+!README.md
+!projects/**/*.md
+
+# System files
+.AGENTS.md
+.BOOTSTRAP.md
+.HEARTBEAT.md
+.IDENTITY.md
+.SOUL.md
+.TOOLS.md
+.USER.md
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
