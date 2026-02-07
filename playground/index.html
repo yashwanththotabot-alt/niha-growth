@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎓 Niha's Coding Playground</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: rgba(255,255,255,0.95);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            color: #333;
+        }
+        
+        .header h1 span {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .nav button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .nav button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            height: calc(100vh - 70px);
+        }
+        
+        .editor-section, .preview-section {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .section-header {
+            background: #f8f9fa;
+            padding: 12px 20px;
+            font-weight: 600;
+            color: #555;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .tab-btn {
+            padding: 6px 14px;
+            border: none;
+            background: transparent;
+            color: #666;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .code-editor {
+            flex: 1;
+            border: none;
+            padding: 20px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        
+        .preview-frame {
+            flex: 1;
+            border: none;
+            background: white;
+        }
+        
+        .status-bar {
+            background: #252526;
+            color: #ccc;
+            padding: 8px 20px;
+            font-size: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .examples-dropdown {
+            position: relative;
+        }
+        
+        .examples-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            min-width: 250px;
+            display: none;
+            z-index: 100;
+        }
+        
+        .examples-menu.show {
+            display: block;
+        }
+        
+        .examples-menu a {
+            display: block;
+            padding: 12px 16px;
+            color: #333;
+            text-decoration: none;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+        }
+        
+        .examples-menu a:hover {
+            background: #f8f9fa;
+        }
+        
+        .examples-menu a:last-child {
+            border-bottom: none;
+        }
+        
+        .examples-menu a strong {
+            color: #667eea;
+        }
+        
+        @media (max-width: 900px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            
+            .editor-section, .preview-section {
+                min-height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>🎓 <span>Niha's Coding Playground</span></h1>
+        <nav class="nav">
+            <button class="btn-secondary" onclick="resetCode()">🔄 Reset</button>
+            <button class="btn-secondary" onclick="saveCode()">💾 Save</button>
+            <button class="btn-secondary" onclick="loadCode()">📂 Load</button>
+            <div class="examples-dropdown">
+                <button class="btn-primary" onclick="toggleExamples()">📚 Examples ▼</button>
+                <div class="examples-menu" id="examplesMenu">
+                    <a href="#" onclick="loadExample('html-basics')"><strong>HTML Basics</strong><br><small>Tags, elements, structure</small></a>
+                    <a href="#" onclick="loadExample('css-intro')"><strong>CSS Introduction</strong><br><small>Styling, colors, fonts</small></a>
+                    <a href="#" onclick="loadExample('flexbox')"><strong>Flexbox Layout</strong><br><small>Modern CSS layouts</small></a>
+                    <a href="#" onclick="loadExample('js-basics')"><strong>JavaScript Basics</strong><br><small>Variables, functions</small></a>
+                    <a href="#" onclick="loadExample('dom-manipulation')"><strong>DOM Manipulation</strong><br><small>Interacting with HTML</small></a>
+                    <a href="#" onclick="loadExample('todo-app')"><strong>Todo App</strong><br><small>Build a simple app</small></a>
+                </div>
+            </div>
+            <button class="btn-primary" onclick="downloadCode()">⬇️ Download</button>
+        </nav>
+    </header>
+    
+    <main class="main-container">
+        <section class="editor-section">
+            <div class="section-header">
+                <span>📝 Code Editor</span>
+                <div class="tab-buttons">
+                    <button class="tab-btn active" onclick="switchTab('html')">HTML</button>
+                    <button class="tab-btn" onclick="switchTab('css')">CSS</button>
+                    <button class="tab-btn" onclick="switchTab('js')">JavaScript</button>
+                </div>
+            </div>
+            <div class="editor-container">
+                <textarea id="htmlCode" class="code-editor" spellcheck="false"><!-- Welcome to Niha's Coding Playground! -->
+<!-- Try editing this code and see changes live! -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My First Page</title>
+</head>
+<body>
+    <h1>Hello, World! 👋</h1>
+    <p>Welcome to your coding journey!</p>
+    <button onclick="sayHello()">Click Me!</button>
+    
+    <div style="margin-top: 20px;">
+        <h3>Quick Links:</h3>
+        <ul>
+            <li><a href="#">Learn HTML</a></li>
+            <li><a href="#">Learn CSS</a></li>
+            <li><a href="#">Learn JavaScript</a></li>
+        </ul>
+    </div>
+</body>
+</html></textarea>
+                <textarea id="cssCode" class="code-editor" style="display:none;" spellcheck="false">/* Add your CSS here */
+body {
+    font-family: Arial, sans-serif;
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: white;
+}
+
+h1 {
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+button {
+    background: white;
+    color: #667eea;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+button:hover {
+    transform: scale(1.05);
+}
+
+a {
+    color: #fff;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    background: rgba(255,255,255,0.2);
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
+}</textarea>
+                <textarea id="jsCode" class="code-editor" style="display:none;" spellcheck="false">// Add your JavaScript here
+function sayHello() {
+    alert('Hello, Niha! 🎓\nKeep up the great work!');
+}
+
+// Try adding your own code below!
+// Examples:
+// - Create a variable: let name = "Niha";
+// - Add an event listener: document.querySelector('button').addEventListener('click', ...);
+// - Use console.log: console.log('Debug message');</textarea>
+                <div class="status-bar">
+                    <span id="statusText">Ready to code!</span>
+                    <span>💡 Tip: Click "Examples" for tutorials</span>
+                </div>
+            </div>
+        </section>
+        
+        <section class="preview-section">
+            <div class="section-header">
+                <span>👁️ Live Preview</span>
+                <button class="btn-secondary" onclick="refreshPreview()" style="padding: 4px 10px; font-size: 0.8rem;">🔄 Refresh</button>
+            </div>
+            <iframe id="previewFrame" class="preview-frame"></iframe>
+        </section>
+    </main>
+    
+    <script>
+        let currentTab = 'html';
+        
+        function updatePreview() {
+            const html = document.getElementById('htmlCode').value;
+            const css = `<style>${document.getElementById('cssCode').value}</style>`;
+            const js = `<script>${document.getElementById('jsCode').value}<\/script>`;
+            
+            const previewDoc = document.getElementById('previewFrame').contentDocument || document.getElementById('previewFrame').contentWindow.document;
+            previewDoc.open();
+            previewDoc.write(html + css + js);
+            previewDoc.close();
+            
+            document.getElementById('statusText').textContent = 'Preview updated at ' + new Date().toLocaleTimeString();
+        }
+        
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.tab-btn[onclick="switchTab('${tab}')"]`).classList.add('active');
+            
+            document.querySelectorAll('.code-editor').forEach(editor => editor.style.display = 'none');
+            document.getElementById(tab + 'Code').style.display = 'block';
+            currentTab = tab;
+        }
+        
+        function refreshPreview() {
+            updatePreview();
+        }
+        
+        function resetCode() {
+            if(confirm('Reset all code to default?')) {
+                localStorage.removeItem('nihaPlayground');
+                location.reload();
+            }
+        }
+        
+        function saveCode() {
+            const data = {
+                html: document.getElementById('htmlCode').value,
+                css: document.getElementById('cssCode').value,
+                js: document.getElementById('jsCode').value,
+                savedAt: new Date().toISOString()
+            };
+            localStorage.setItem('nihaPlayground', JSON.stringify(data));
+            alert('✅ Code saved to browser storage!');
+        }
+        
+        function loadCode() {
+            const saved = localStorage.getItem('nihaPlayground');
+            if(saved) {
+                const data = JSON.parse(saved);
+                document.getElementById('htmlCode').value = data.html;
+                document.getElementById('cssCode').value = data.css;
+                document.getElementById('jsCode').value = data.js;
+                updatePreview();
+                alert('✅ Code loaded from ' + new Date(data.savedAt).toLocaleString());
+            } else {
+                alert('No saved code found.');
+            }
+        }
+        
+        function downloadCode() {
+            const html = document.getElementById('htmlCode').value;
+            const blob = new Blob([html], {type: 'text/html'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'my-page.html';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function toggleExamples() {
+            document.getElementById('examplesMenu').classList.toggle('show');
+        }
+        
+        // Example code library
+        const examples = {
+            'html-basics': `<!DOCTYPE html>
+<html>
+<head>
+    <title>HTML Basics</title>
+</head>
+<body>
+    <h1>HTML Basics 👋</h1>
+    
+    <h2>Headings (h1-h6)</h2>
+    <h1>Heading 1</h1>
+    <h2>Heading 2</h2>
+    <h3>Heading 3</h3>
+    
+    <h2>Text Formatting</h2>
+    <p>This is <strong>bold</strong> text.</p>
+    <p>This is <em>italic</em> text.</p>
+    <p>This is <u>underlined</u> text.</p>
+    
+    <h2>Lists</h2>
+    <h3>Unordered List</h3>
+    <ul>
+        <li>Item 1</li>
+        <li>Item 2</li>
+        <li>Item 3</li>
+    </ul>
+    
+    <h3>Ordered List</h3>
+    <ol>
+        <li>First item</li>
+        <li>Second item</li>
+        <li>Third item</li>
+    </ol>
+    
+    <h2>Links & Images</h2>
+    <a href="https://google.com">Google</a>
+    <br><br>
+    <img src="https://via.placeholder.com/150" alt="Placeholder">
+    
+    <h2>Forms</h2>
+    <form>
+        <input type="text" placeholder="Your name">
+        <button type="button">Submit</button>
+    </form>
+</body>
+</html>`,
+            
+            'css-intro': `/* CSS Introduction */
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    color: #333;
+    padding: 20px;
+}
+
+h1 {
+    color: #2196F3;
+}
+
+.box {
+    background: white;
+    padding: 20px;
+    margin: 10px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.red-box {
+    background: #ffebee;
+    border-left: 4px solid #f44336;
+}
+
+.green-box {
+    background: #e8f5e9;
+    border-left: 4px solid #4caf50;
+}
+
+.blue-box {
+    background: #e3f2fd;
+    border-left: 4px solid #2196f3;
+}
+
+/* Try changing colors! */
+.text-large {
+    font-size: 24px;
+}
+
+.text-center {
+    text-align: center;
+}`,
+            
+            'flexbox': `<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        
+        .container {
+            display: flex;
+            background: #e0e0e0;
+            padding: 20px;
+            margin: 10px 0;
+        }
+        
+        .box {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+            margin: 5px;
+            border-radius: 5px;
+        }
+        
+        /* Flexbox properties to try: */
+        /* justify-content: center; */
+        /* justify-content: space-between; */
+        /* justify-content: space-around; */
+        /* flex-direction: column; */
+        /* flex-wrap: wrap; */
+        /* align-items: center; */
+    </style>
+</head>
+<body>
+    <h1>Flexbox Playground 🎯</h1>
+    
+    <h2>Row (default)</h2>
+    <div class="container">
+        <div class="box">Box 1</div>
+        <div class="box">Box 2</div>
+        <div class="box">Box 3</div>
+    </div>
+    
+    <h2>Column Direction</h2>
+    <div class="container" style="flex-direction: column;">
+        <div class="box">Box 1</div>
+        <div class="box">Box 2</div>
+        <div class="box">Box 3</div>
+    </div>
+    
+    <h2>Centered</h2>
+    <div class="container" style="justify-content: center; height: 150px; align-items: center;">
+        <div class="box">Centered</div>
+    </div>
+</body>
+</html>`,
+            
+            'js-basics': `// JavaScript Basics
+console.log('Hello from JavaScript! 👋');
+
+// Variables
+let name = 'Niha';
+const course = 'Full Stack Development';
+var isLearning = true;
+
+// Output
+console.log('Name:', name);
+console.log('Course:', course);
+
+// Functions
+function greet(person) {
+    return 'Hello, ' + person + '!';
+}
+
+console.log(greet(name));
+
+// Arrays
+const skills = ['HTML', 'CSS', 'JavaScript'];
+console.log('Skills:', skills);
+console.log('First skill:', skills[0]);
+
+// Objects
+const student = {
+    name: 'Niha',
+    course: 'Full Stack',
+    progress: 'Week 1'
+};
+
+console.log('Student:', student);
+
+// Conditionals
+if (isLearning) {
+    console.log('🎉 Keep learning! You\'re doing great!');
+}
+
+// Loops
+for (let i = 1; i <= 3; i++) {
+    console.log('Day', i, 'of learning!');
+}`,
+            
+            'dom-manipulation': `<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        
+        .card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <h1>DOM Manipulation Demo 🎯</h1>
+    
+    <div class="card" id="myCard">
+        <h2 id="cardTitle">Click the buttons!</h2>
+        <p id="cardText">This text will change.</p>
+    </div>
+    
+    <button onclick="changeText()">Change Text</button>
+    <button onclick="changeColor()">Random Color</button>
+    <button onclick="addItem()">Add Item</button>
+    <button onclick="toggleDark()">Toggle Dark Mode</button>
+    
+    <ul id="itemList" style="margin-top: 20px;"></ul>
+    
+    <script>
+        // Change text
+        function changeText() {
+            document.getElementById('cardText').textContent = 'You clicked the button! 🎉';
+        }
+        
+        // Random color
+        function changeColor() {
+            const colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            document.getElementById('myCard').style.background = randomColor;
+        }
+        
+        // Add item to list
+        let count = 1;
+        function addItem() {
+            const list = document.getElementById('itemList');
+            const li = document.createElement('li');
+            li.textContent = 'Item ' + count++;
+            li.style.background = '#f0f0f0';
+            li.style.padding = '10px';
+            li.style.margin = '5px 0';
+            li.style.borderRadius = '5px';
+            list.appendChild(li);
+        }
+        
+        // Toggle dark mode
+        let isDark = false;
+        function toggleDark() {
+            isDark = !isDark;
+            document.body.style.background = isDark ? '#333' : '#fff';
+            document.body.style.color = isDark ? '#fff' : '#333';
+        }
+    <\/script>
+</body>
+</html>`,
+            
+            'todo-app': `<!DOCTYPE html>
+<html>
+<head>
+    <title>Todo App ✅</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 400px;
+            margin: 40px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+        }
+        
+        .app-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #eee;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        button.add-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        li {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        li.completed span {
+            text-decoration: line-through;
+            color: #999;
+        }
+        
+        .delete-btn {
+            margin-left: auto;
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>📝 My Todo App</h1>
+    
+    <div class="app-container">
+        <div class="input-group">
+            <input type="text" id="todoInput" placeholder="Add a new task...">
+            <button class="add-btn" onclick="addTodo()">Add</button>
+        </div>
+        
+        <ul id="todoList"></ul>
+    </div>
+    
+    <script>
+        const input = document.getElementById('todoInput');
+        const list = document.getElementById('todoList');
+        
+        // Add todo on Enter key
+        input.addEventListener('keypress', function(e) {
+            if(e.key === 'Enter') addTodo();
+        });
+        
+        function addTodo() {
+            const text = input.value.trim();
+            if(!text) return;
+            
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <span onclick="toggle(this)">${text}</span>
+                <button class="delete-btn" onclick="this.parentElement.remove()">✕</button>
+            `;
+            
+            list.appendChild(li);
+            input.value = '';
+        }
+        
+        function toggle(span) {
+            span.parentElement.classList.toggle('completed');
+        }
+    <\/script>
+</body>
+</html>`
+        };
+        
+        function loadExample(exampleId) {
+            const example = examples[exampleId];
+            if(example) {
+                document.getElementById('htmlCode').value = example;
+                document.getElementById('cssCode').value = '';
+                document.getElementById('jsCode').value = '';
+                updatePreview();
+                document.getElementById('examplesMenu').classList.remove('show');
+                document.getElementById('statusText').textContent = 'Loaded example: ' + exampleId;
+            }
+        }
+        
+        // Close examples menu when clicking outside
+        document.addEventListener('click', function(e) {
+            if(!e.target.closest('.examples-dropdown')) {
+                document.getElementById('examplesMenu').classList.remove('show');
+            }
+        });
+        
+        // Auto-update preview on code change
+        document.querySelectorAll('.code-editor').forEach(editor => {
+            editor.addEventListener('input', updatePreview);
+        });
+        
+        // Initial preview
+        updatePreview();
+        
+        // Load saved code if exists
+        if(localStorage.getItem('nihaPlayground')) {
+            try {
+                const saved = JSON.parse(localStorage.getItem('nihaPlayground'));
+                document.getElementById('htmlCode').value = saved.html;
+                document.getElementById('cssCode').value = saved.css;
+                document.getElementById('jsCode').value = saved.js;
+                updatePreview();
+            } catch(e) {}
+        }
+    </script>
+</body>
+</html>
